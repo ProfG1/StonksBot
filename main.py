@@ -1,33 +1,39 @@
 import discord
-from discord import app_commands
+from discord.ext import commands
 import os
+import asyncio
 from dotenv import load_dotenv
+from events.on_ready import OnReadyEvent
+from commands.ping import PingCommand
 
-#for the token to not be leaked I put it in a separate file
-load_dotenv(r"C:\Users\USER\Documents\DcBot\.env")
+# Load environment variables
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env')) # Load environment variables from .env file
 TOKEN: str = os.getenv("TOKEN")
+COMMANDS_PATH: str = os.getenv("COMMANDS_PATH", "StonksBot/commands")
+if TOKEN is None:
+    raise ValueError("No TOKEN found in environment variables")
 
 # Initialize bot with appropriate intents
 intents = discord.Intents.default()
-client = discord.Client(intents=intents)
-bot = app_commands.CommandTree(client)
+bot = commands.Bot(command_prefix="!", intents=intents)
 
+# Initialize event and command handlers
+guild_id = 1320393932378603644
+on_ready_event = OnReadyEvent(bot.tree, bot, guild_id)
+ping_command = PingCommand(bot.tree, bot, guild_id)
 
-class MyClient(discord.Client):
-    async def on_ready(self):
-        print(f'Logged on as {self.user}!')
-
-@client.event
+@bot.event
 async def on_ready():
-    await bot.sync(guild=discord.Object(id=1320393932378603644))
-    print(f'Logged on as {client.user}!')
+    await on_ready_event.on_ready()
 
+async def load_commands(): # Load all commands from the commands folder
+    await ping_command.register()
+    for filename in os.listdir(COMMANDS_PATH):
+        if filename.endswith('.py') and filename != 'ping.py':
+            await bot.load_extension(f'commands.{filename[:-3]}')
 
-@bot.command(name="ping", description="Replies with pong and latency", guild=discord.Object(id=1320393932378603644))
-
-async def ping(ctx: discord.Interaction):
-    latency = round(client.latency * 1000)  # Convert latency to ms
-    await ctx.response.send_message(f"Pong! Latency: {latency} ms")
-
-# Run the bot
-client.run(TOKEN)
+async def main(): # Load all commands and start the bot
+    await load_commands()
+    await bot.start(TOKEN)
+    
+asyncio.get_event_loop().run_until_complete(main())
