@@ -5,6 +5,7 @@ import asyncio
 from dotenv import load_dotenv
 from events.on_ready import OnReadyEvent
 from commands.ping import PingCommand
+from commands.ticker_search import TickerSearchCommand
 
 # Load environment variables
 load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env')) # Load environment variables from .env file
@@ -21,6 +22,7 @@ bot = commands.Bot(command_prefix="!", intents=intents)
 guild_id = 1320393932378603644
 on_ready_event = OnReadyEvent(bot.tree, bot, guild_id)
 ping_command = PingCommand(bot.tree, bot, guild_id)
+ticker_search_command = TickerSearchCommand(bot.tree, bot, guild_id)
 
 @bot.event
 async def on_ready():
@@ -28,12 +30,13 @@ async def on_ready():
 
 async def load_commands(): # Load all commands from the commands folder
     await ping_command.register()
+    await ticker_search_command.register()
     for filename in os.listdir(COMMANDS_PATH):
-        if filename.endswith('.py') and filename != 'ping.py':
+        if filename.endswith('.py') and filename not in ['ping.py', 'ticker_search.py']:
             await bot.load_extension(f'commands.{filename[:-3]}')
 
 async def main(): # Load all commands and start the bot
     await load_commands()
     await bot.start(TOKEN)
     
-asyncio.get_event_loop().run_until_complete(main())
+asyncio.run(main())
