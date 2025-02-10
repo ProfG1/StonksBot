@@ -1,5 +1,8 @@
 import discord
 from discord import app_commands
+import logging
+
+logger = logging.getLogger(__name__)
 
 class Command: # Base class for all commands
     def __init__(self, name: str, description: str, guild: discord.Object): 
@@ -21,3 +24,4 @@ class PingCommand:
         async def ping(ctx: discord.Interaction):
             latency = round(self.client.latency * 1000)  # Convert latency to ms
             await ctx.response.send_message(f"Pong! Latency: {latency} ms")
+            logger.info(f'Ping command invoked, latency: {latency} ms')
