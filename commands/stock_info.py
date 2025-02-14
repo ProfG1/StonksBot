@@ -61,7 +61,7 @@ class StockInfoCommand:
 
             await ctx.response.send_message(embed=embed)
 
-# Example usage
+
 if __name__ == "__main__":
     ticker = "TSLA"
     print(StockInfoCommand(ticker))

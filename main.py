@@ -50,7 +50,7 @@ async def on_command(ctx):
 async def on_command_error(ctx, error):
     logger.error(f'Error in command {ctx.command}: {error}')
 
-async def load_commands(): # Load all commands from the commands folder
+async def load_commands(): # Load all commands from the commands dir 
     await ping_command.register()
     await ticker_search_command.register()
     await stock_info_command.register()
@@ -61,7 +61,7 @@ async def load_commands(): # Load all commands from the commands folder
             await bot.load_extension(f'commands.{filename[:-3]}')
     logger.info("All commands loaded")
 
-async def main(): # Load all commands and start the bot
+async def main(): # starts the bot
     await load_commands()
     await bot.start(TOKEN)
     

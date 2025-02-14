@@ -40,7 +40,6 @@ class CryptoInfoCommand:
 
             await ctx.response.send_message(embed=embed)
 
-# Example usage
 if __name__ == "__main__":
     intents = discord.Intents.default()
     client = discord.Client(intents=intents)
