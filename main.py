@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 # Load environment variables
 load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env')) # Load environment variables from .env file
 TOKEN: str = os.getenv("TOKEN")
-COMMANDS_PATH: str = os.getenv("COMMANDS_PATH", "StonksBot/commands")
+COMMANDS_PATH: str = os.getenv("COMMANDS_PATH", "commands")
 if TOKEN is None:
     logger.error("No TOKEN found in environment variables")
     raise ValueError("No TOKEN found in environment variables")
