@@ -17,7 +17,7 @@ from const_online import const_online
 setup_logging()
 logger = logging.getLogger(__name__)
 
-const_online
+const_online()
 
 # Load environment variables
 load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env')) # Load environment variables from .env file
