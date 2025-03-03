@@ -11,15 +11,18 @@ from commands.stock_info import StockInfoCommand
 from commands.crypto_info import CryptoInfoCommand
 from commands.predict import PredictCommand
 from config.logging_config import setup_logging
+from const_online import const_online
 
 # Set up logging
 setup_logging()
 logger = logging.getLogger(__name__)
 
+const_online
+
 # Load environment variables
 load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env')) # Load environment variables from .env file
 TOKEN: str = os.getenv("TOKEN")
-COMMANDS_PATH: str = os.getenv("COMMANDS_PATH", "commands")
+COMMANDS_PATH: str = os.getenv("COMMANDS_PATH", "StonksBot/commands")
 if TOKEN is None:
     logger.error("No TOKEN found in environment variables")
     raise ValueError("No TOKEN found in environment variables")
