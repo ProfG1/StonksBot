@@ -45,6 +45,42 @@ def get_crypto_info(crypto_id, api_key):
         return data
     return None
 
+def fetch_crypto_data(crypto_id, period):
+    cache_key = f"crypto_{crypto_id}_{period}"
+    cache_file = DATA_CACHE_DIR / f"{cache_key}.pkl"
+    
+    if cache_file.exists():
+        data = joblib.load(cache_file)
+        cache_time = os.path.getmtime(cache_file)
+        if time.time() - cache_time < TTL_CRYPTO:
+            logger.info(f"Retrieved cached data for {crypto_id} for period {period}")
+            return data
+
+    # Calculate the 'from' timestamp based on the selected period
+    period_mapping = {
+        '1d': 1 * 24 * 60 * 60,
+        '7d': 7 * 24 * 60 * 60,
+        '30d': 30 * 24 * 60 * 60,
+        '90d': 90 * 24 * 60 * 60,
+        '1y': 365 * 24 * 60 * 60
+    }
+    
+    if period not in period_mapping:
+        logger.error(f"Invalid period: {period}")
+        return None
+    
+    to_timestamp = int(time.time())
+    from_timestamp = to_timestamp - period_mapping[period]
+
+    url = f'https://api.coingecko.com/api/v3/coins/{crypto_id}/market_chart/range?vs_currency=usd&from={from_timestamp}&to={to_timestamp}'
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        joblib.dump(data, cache_file)
+        logger.info(f"Successfully fetched data for {crypto_id} for period {period}")
+        return data
+    return None
+
 def fetch_stock_data(ticker, period, interval):
     cache_key = f"{ticker}_{period}_{interval}"
     cache_file = DATA_CACHE_DIR / f"{cache_key}.pkl"
@@ -74,7 +110,7 @@ def fetch_stock_data(ticker, period, interval):
     return data
 
 if __name__ == "__main__":
-    load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env')) # Load environment variables from .env file
+    load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env')) 
     api_key = os.getenv("ALPHA_VANTAGE_API_KEY")
     keywords = 'Tesla Inc'
     print(search_symbol(api_key, keywords))
@@ -82,3 +118,4 @@ if __name__ == "__main__":
     crypto_api_key = os.getenv("CRYPTO")
     crypto_id = 'bitcoin'
     print(get_crypto_info(crypto_id, crypto_api_key))
+    print(fetch_crypto_data(crypto_id, '30d'))
